@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<style type="text/css">
+    *{
+        padding: 0;
+        margin: 0;
+    }
+    body{
+ background-color: #f9f2f4;
+        font-size: 16px;
+        font-family: "Microsoft YaHei", "Helvetica Neue", Helvetica, sans-serif;
+    }
+    .popup{
+        width: 300px;
+        height: auto;
+        position: absolute;
+        top:100px;
+        left: 100px;
+        border: solid 1px black;
+        z-index: 9000;
+        display: none;
+
+    }
+    .popup_title{
+     height: 48px;
+        line-height: 48px;
+        padding-left: 20px;
+        color: #101010;
+        background-color: #bce8f1;
+        border-bottom: solid 1px #101010;
+        cursor: move;
+
+    }
+    #close{
+        position: absolute;
+         right:10px;
+         top:10px;
+
+    }
+    .popup_content{
+        background-color: #eeeeee;
+    }
+    .close_button{
+        width: 16px;
+        height: 16px;
+        display: block;
+        position: absolute;
+        top:12px;
+        right:20px;
+        background-color: plum;
+    }
+    .popup_content{
+        padding: 15px 20px;
+        height: 200px;
+
+
+    }
+  .mask{
+      width: 100%;
+      height: 100%;
+      background-color: #101010;
+      opacity: .2;
+      filter: Alpha(opacity=20);
+      position: absolute;
+      top:0;
+      left: 0;
+      z-index: 8000;
+     display: none;
+  }
+
+</style>
+<body>
+<div class="popup" id="popup">
+    <div class="popup_title" id="title">这是一个浮出层
+    <button id="close" >关闭</button>
+    </div>
+  <div  class="popup_content">拖动我试试！</div>
+</div>
+<div class="mask" id="mask" ></div>
+<div class="link">
+    <input type="button" id="open" onclick="showPopup()" value="点击我打开浮层!"/>
+</div>
+
+<script type="text/javascript">
+
+    //获取元素对象
+    function getId(id){
+
+        return document.getElementById(id);
+    }
+
+    //浮层自动居中
+  function Autocenter(el){
+      var bodywidth = document.documentElement.clientWidth;
+      var bodyheight = document.documentElement.clientHeight;
+      var elwidth = el.offsetWidth;
+      var elheight = el.offsetHeight;
+      el.style.left= (bodywidth-elwidth)/2+'px';
+      el.style.top=(bodyheight-elheight)/2+'px';
+
+  }
+    //自动遮罩
+    function maskBody(el){
+
+        el.style.width = document.documentElement.clientWidth+'px';
+        el.style.height = document.documentElement.clientHeight+'px';
+    }
+  var mouseOffSetX = 0;
+    var mouseOffSetY = 0;
+    var draging = false;
+
+    //拖拽实现,计算鼠标相对拖拽元素左上角的坐标，标记元素为可以拖动
+
+    getId('title').addEventListener('mousedown',function(e){
+    var e = e||window.event;
+      mouseOffSetX = e.pageX - getId('popup').offsetLeft;
+        mouseOffSetY = e.pageY - getId('popup').offsetTop;
+        draging = true;
+    })
+//鼠标移动
+    document.onmousemove = function(e){
+  var e = e||window.event;
+//鼠标当前的位置
+        var mouseX = e.pageX;
+      var mouseY = e.pageY;
+        // 拖拽之后的新位置
+        var moveX = 0;
+        var moveY = 0;
+
+        if(draging===true){
+            moveX = mouseX-mouseOffSetX;
+            moveY=mouseY-mouseOffSetY;
+
+            //限定范围，可拖动的范围X<（可视区域的宽度-弹出框的宽度）
+            //可拖动的范围Y<（可视区域的高度-弹出框的高度）
+
+            var pageWidth = document.documentElement.clientWidth;
+            var pageHeight = document.documentElement.clientHeight;
+
+            var popupWidth = getId('popup').offsetWidth;
+            var popupHeight = getId('popup').offsetHeight;
+
+            var maxX = pageWidth-popupWidth;
+            var maxY = pageHeight-popupHeight;
+
+            moveX = Math.min(maxX,Math.max(0,moveX));
+            moveY = Math.min(maxY,Math.max(0,moveY));
+
+            getId('popup').style.left = moveX+'px';
+            getId('popup').style.top = moveY+'px';
+        }
+    }
+
+    //鼠标松开，标记元素为不可移动
+    document.onmouseup = function(){
+
+        draging = false;
+    }
+    //点击打开浮层
+    function showPopup(){
+    getId('popup').style.display = 'block';
+        getId('mask').style.display='block';
+        Autocenter(getId('popup'));
+        maskBody(getId('mask'));
+
+    }
+    //点击浮层以外的区域关闭浮出层
+     getId('mask').onclick = getId('close').onclick= function(){
+         getId('popup').style.display = 'none';
+         getId('mask').style.display='none';
+
+     }
+    //屏幕大小改变的时候，弹出层依旧居中和遮罩全屏
+    window.onresize = function(){
+        Autocenter(getId('popup'));
+        maskBody(getId('mask'));
+    }
+</script>
+</body>
+</html>
